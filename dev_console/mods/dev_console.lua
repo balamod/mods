@@ -237,6 +237,7 @@ table.insert(mods,
             on_enable = function()
                 MAX_LINES = love.graphics.getHeight() / LINE_HEIGHT
                 logger:debug("Dev Console enabled")
+
                 registerCommand(
                         "help",
                         function()
@@ -272,6 +273,97 @@ table.insert(mods,
                         end,
                         "Give an item to the player"
                 )
+
+                registerCommand(
+                        "money",
+                        function(args)
+                            if args[1] and args[2] then
+                                local amount = tonumber(args[2])
+                                if amount then
+                                    if args[1] == "add" then
+                                        ease_dollars(amount, true)
+                                        logger:info("Added " .. amount .. " money to the player")
+                                    elseif args[1] == "remove" then
+                                        ease_dollars(-amount, true)
+                                        logger:info("Removed " .. amount .. " money from the player")
+                                    elseif args[1] == "set" then
+                                        local currentMoney = G.GAME.dollars
+                                        local diff = amount - currentMoney
+                                        ease_dollars(diff, true)
+                                        logger:info("Set player money to " .. amount)
+                                    else
+                                        logger:error("Invalid operation, use add, remove or set")
+                                    end
+                                else
+                                    logger:error("Invalid amount")
+                                end
+                            else
+                                logger:warn("Usage: money <add/remove/set> <amount>")
+                            end
+                        end,
+                        "Change the player's money"
+                )
+
+                registerCommand(
+                        "discards",
+                        function(args)
+                            if args[1] and args[2] then
+                                local amount = tonumber(args[2])
+                                if amount then
+                                    if args[1] == "add" then
+                                        ease_discard(amount, true)
+                                        logger:info("Added " .. amount .. " discards to the player")
+                                    elseif args[1] == "remove" then
+                                        ease_discard(-amount, true)
+                                        logger:info("Removed " .. amount .. " discards from the player")
+                                    elseif args[1] == "set" then
+                                        local currentDiscards = G.GAME.current_round.discards_left
+                                        local diff = amount - currentDiscards
+                                        ease_discard(diff, true)
+                                        logger:info("Set player discards to " .. amount)
+                                    else
+                                        logger:error("Invalid operation, use add, remove or set")
+                                    end
+                                else
+                                    logger:error("Invalid amount")
+                                end
+                            else
+                                logger:warn("Usage: discards <add/remove/set> <amount>")
+                            end
+                        end,
+                        "Change the player's remaining discards"
+                )
+
+                registerCommand(
+                        "hands",
+                        function(args)
+                            if args[1] and args[2] then
+                                local amount = tonumber(args[2])
+                                if amount then
+                                    if args[1] == "add" then
+                                        ease_hands_played(amount, true)
+                                        logger:info("Added " .. amount .. " hands to the player")
+                                    elseif args[1] == "remove" then
+                                        ease_hands_played(-amount, true)
+                                        logger:info("Removed " .. amount .. " hands from the player")
+                                    elseif args[1] == "set" then
+                                        local currentHands = G.GAME.current_round.hands_left
+                                        local diff = amount - currentHands
+                                        ease_hands_played(diff, true)
+                                        logger:info("Set player hands to " .. amount)
+                                    else
+                                        logger:error("Invalid operation, use add, remove or set")
+                                    end
+                                else
+                                    logger:error("Invalid amount")
+                                end
+                            else
+                                logger:warn("Usage: hands <add/remove/set> <amount>")
+                            end
+                        end,
+                        "Change the player's remaining hands"
+                )
+
             end,
             on_disable = function()
             end,
