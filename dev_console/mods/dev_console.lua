@@ -16,6 +16,15 @@ local function toggleConsole()
     _CONSOLE_OPEN = not _CONSOLE_OPEN
 end
 
+local commands = {}
+
+function registerCommand(name, callback, description)
+    commands[name] = {
+        call = callback,
+        desc = description
+    }
+end
+
 local function getLineColor(line)
     if string.match(line, "INFO") then
         sendDebugMessage("INFO")
@@ -140,9 +149,19 @@ local function typeKey(key_name)
         end
     elseif key_name == "return" then
         logger:print(_CONSOLE_CMD)
+        local cmdName = _CONSOLE_CMD:sub(3)
+        cmdName = cmdName:match("%S+")
+        local args = {}
+        local argString = _CONSOLE_CMD:sub(3 + #cmdName + 1)
+        if argString then
+            for arg in argString:gmatch("%S+") do
+                table.insert(args, arg)
+            end
+        end
+
         for _, mod in ipairs(mods) do
             if mod.on_command_sent then
-                mod.on_command_sent(_CONSOLE_CMD:sub(3, #_CONSOLE_CMD))
+                mod.on_command_sent(cmdName, args)
             end
         end
         _CONSOLE_CMD = "> "
@@ -155,7 +174,7 @@ local function typeKey(key_name)
 end
 
 local function onKeyPressed(key_name)
-    if key_name == "f1" then
+    if key_name == "f2" then
         toggleConsole()
         return true
     end
@@ -210,40 +229,61 @@ local function onPostRender()
 end
 
 table.insert(mods,
-    {
-        mod_id = "dev_console",
-        name = "Dev Console",
-        version = "0.1.0",
-        enabled = true,
-        on_enable = function()
-            MAX_LINES = love.graphics.getHeight() / LINE_HEIGHT
-            logger:debug("Dev Console enabled")
-        end,
-        on_disable = function()
-        end,
-        on_key_pressed = onKeyPressed,
-        on_post_render = onPostRender,
-        on_key_released = onKeyReleased,
-        on_command_sent = function(command)
-            if command == "give" then
-                logger:print("Give command not implemented yet")
-                return
-            end
-            if command == "clear" then
-                ALL_MESSAGES = {}
-                return
-            end
-            if command == "exit" then
-                toggleConsole()
-                return
-            end
-            if command == "help" then
-                logger:print("Available commands:")
-                logger:print("clear - clears the console")
-                logger:print("exit - closes the console")
-                logger:print("help - shows this message")
-                return
-            end
-        end,
-    }
+        {
+            mod_id = "dev_console",
+            name = "Dev Console",
+            version = "0.1.0",
+            enabled = true,
+            on_enable = function()
+                MAX_LINES = love.graphics.getHeight() / LINE_HEIGHT
+                logger:debug("Dev Console enabled")
+                registerCommand(
+                        "help",
+                        function()
+                            logger:print("Available commands:")
+                            for name, cmd in pairs(commands) do
+                                if cmd.desc then
+                                    logger:print(name .. ": " .. cmd.desc)
+                                end
+                            end
+                        end,
+                        "Prints a list of available commands"
+                )
+
+                registerCommand(
+                        "clear",
+                        function()
+                            ALL_MESSAGES = {}
+                        end,
+                        "Clear the console")
+
+                registerCommand(
+                        "exit",
+                        function()
+                            toggleConsole()
+                        end,
+                        "Close the console"
+                )
+
+                registerCommand(
+                        "give",
+                        function()
+                            logger:print("Give command not implemented yet")
+                        end,
+                        "Give an item to the player"
+                )
+            end,
+            on_disable = function()
+            end,
+            on_key_pressed = onKeyPressed,
+            on_post_render = onPostRender,
+            on_key_released = onKeyReleased,
+            on_command_sent = function(command, args)
+                if commands[command] then
+                    commands[command].call(args)
+                else
+                    logger:error("Command not found: " .. command)
+                end
+            end,
+        }
 )
