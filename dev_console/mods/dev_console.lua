@@ -147,7 +147,7 @@ local function typeKey(key_name)
         if #_CONSOLE_CMD > 2 then
             _CONSOLE_CMD = _CONSOLE_CMD:sub(1, #_CONSOLE_CMD - 1)
         end
-    elseif key_name == "return" then
+    elseif key_name == "return" or key_name == "kpenter" then
         logger:print(_CONSOLE_CMD)
         local cmdName = _CONSOLE_CMD:sub(3)
         cmdName = cmdName:match("%S+")
@@ -166,10 +166,31 @@ local function typeKey(key_name)
         end
         _CONSOLE_CMD = "> "
     else
+        local consoleKey = key_name
         if SHIFT_MODIFIER then
-            key_name = string.upper(key_name)
+            consoleKey = string.upper(consoleKey)
         end
-        _CONSOLE_CMD = _CONSOLE_CMD .. key_name
+        if consoleKey == "kp0"
+                or consoleKey == "kp1"
+                or consoleKey == "kp2"
+                or consoleKey == "kp3"
+                or consoleKey == "kp4"
+                or consoleKey == "kp5"
+                or consoleKey == "kp6"
+                or consoleKey == "kp7"
+                or consoleKey == "kp8"
+                or consoleKey == "kp9"
+                or consoleKey == "kp."
+                or consoleKey == "kp,"
+                or consoleKey == "kp+"
+                or consoleKey == "kp-"
+                or consoleKey == "kp*"
+                or consoleKey == "kp/"
+                or consoleKey == "kp=" then
+            
+            consoleKey = consoleKey:sub(3)
+        end
+        _CONSOLE_CMD = _CONSOLE_CMD .. consoleKey
     end
 end
 
@@ -331,7 +352,7 @@ table.insert(mods,
                                 logger:warn("Usage: discards <add/remove/set> <amount>")
                             end
                         end,
-                        "Change the player's remaining discards"
+                        "Change the player's discards"
                 )
 
                 registerCommand(
