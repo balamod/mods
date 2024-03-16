@@ -48,9 +48,12 @@ function createLogger(name, lvl)
                 text=text,
                 time=os.time(),
                 name=self.name,
-                formatted=function(self)
-                    if self.level == "PRINT" then
+                formatted=function(self, dump)
+                    if self.level == "PRINT" and not dump then
                         return self.text
+                    end
+                    if dump then
+                        return string.format("%s [%s] - %s :: %s", os.date("!%Y-%m-%dT%TZ", self.time), self.name, self.level, self.text)
                     end
                     return string.format("[%s] - %s :: %s", self.name, self.level, self.text)
                 end,

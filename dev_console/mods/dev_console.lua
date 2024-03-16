@@ -4,11 +4,14 @@ local math = require('math')
 
 local console = {
     logger = getLogger("dev_console"),
-    log_level = "INFO",
+    log_level = "TRACE",
     is_open = false,
     cmd = "> ",
     max_lines = love.graphics.getHeight() / LINE_HEIGHT,
     start_line_offset = 1,
+    history_index = 0,
+    command_history = {},
+    history_path = "dev_console.history",
     modifiers = {
         capslock = false,
         scrolllock = false,
@@ -228,13 +231,23 @@ local console = {
             return
         end
         if key_name == "up" then
-            -- move up one line, but cap it at max_lines - number of messages + 1 (cause lua indices start at 1 urgh)
-            local messages = self:getFilteredMessages()
-            self.start_line_offset = math.max(self.start_line_offset - 1, self.max_lines - #messages + 1)
+            -- move to the next command in the history (in reverse order of insertion)
+            self.history_index = math.min(self.history_index + 1, #self.command_history)
+            if self.history_index == 0 then
+                self.cmd = "> "
+                return
+            end
+            self.cmd = "> " .. self.command_history[#self.command_history - self.history_index + 1]
             return
         end
         if key_name == "down" then
-            self.start_line_offset = math.min(self.start_line_offset + 1, self.max_lines)
+            -- move to the previous command in the history (in reverse order of insertion)
+            self.history_index = math.max(self.history_index - 1, 0)
+            if self.history_index == 0 then
+                self.cmd = "> "
+                return
+            end
+            self.cmd = "> " .. self.command_history[#self.command_history - self.history_index + 1]
             return
         end
         if key_name == "tab" then
@@ -286,6 +299,9 @@ local console = {
             self.logger:print(self.cmd)
             local cmdName = self.cmd:sub(3)
             cmdName = cmdName:match("%S+")
+            if cmdName == nil then
+                return
+            end
             local args = {}
             local argString = self.cmd:sub(3 + #cmdName + 1)
             if argString then
@@ -293,14 +309,34 @@ local console = {
                     table.insert(args, arg)
                 end
             end
-
-            for _, mod in ipairs(mods) do
-                if mod.on_command_sent then
-                    mod.on_command_sent(cmdName, args)
-                end
+            local success = false
+            if _REGISTERED_COMMANDS[cmdName] then
+                success = _REGISTERED_COMMANDS[cmdName].call(args)
+            else
+                self.logger:error("Command not found: " .. cmdName)
             end
+            if success then
+                -- only add the command to the history if it was successful
+                self:addToHistory(self.cmd:sub(3))
+            end
+
             self.cmd = "> "
             return
+        end
+    end,
+    addToHistory = function(self, command)
+        if command == nil or command == "" then
+            return
+        end
+        table.insert(self.command_history, command)
+        self.history_index = 0
+        local success, errormsg = love.filesystem.append(self.history_path, command .. "\n")
+        if not success then
+            self.logger:warn("Error appending ", command, " to history file: ", errormsg)
+            success, errormsg = love.filesystem.write(self.history_path, command .. "\n")
+            if not success then
+                self.logger:error("Error writing to history file: ", errormsg)
+            end
         end
     end,
 }
@@ -309,7 +345,7 @@ table.insert(mods,
     {
         mod_id = "dev_console",
         name = "Dev Console",
-        version = "0.4.0",
+        version = "0.5.0",
         author = "sbordeyne & UwUDev",
         description = {
             "Press F2 to open/close the console",
@@ -317,8 +353,25 @@ table.insert(mods,
             "available commands and shortcuts",
         },
         enabled = true,
+        on_error = function(message)
+            console.logger:error("Error: ", message)
+            -- on error, write all messages to a file
+            love.filesystem.write("dev_console.log", "")
+            for i, message in ipairs(ALL_MESSAGES) do
+                love.filesystem.append("dev_console.log", message:formatted(true) .. "\n")
+            end
+        end,
         on_enable = function()
             console.logger:debug("Dev Console enabled")
+            contents, size = love.filesystem.read(console.history_path)
+            if contents then
+                console.logger:trace("History file size", size)
+                for line in contents:gmatch("[^\r\n]+") do
+                    if line and line ~= "" then
+                        table.insert(console.command_history, line)
+                    end
+                end
+            end
 
             registerCommand(
                 "help",
@@ -329,6 +382,7 @@ table.insert(mods,
                             console.logger:print(name .. ": " .. cmd.desc)
                         end
                     end
+                    return true
                 end,
                 "Prints a list of available commands",
                 function(current_arg)
@@ -358,6 +412,7 @@ table.insert(mods,
                         console.logger:print("Ctrl+Shift+C: Copies all messages to the clipboard")
                         console.logger:print("Ctrl+V: Paste the clipboard into the current command")
                     end
+                    return true
                 end,
                 "Prints a list of available shortcuts",
                 function(current_arg)
@@ -367,9 +422,22 @@ table.insert(mods,
             )
 
             registerCommand(
+                "history",
+                function()
+                    console.logger:print("Command history:")
+                    for i, cmd in ipairs(console.command_history) do
+                        console.logger:print(i .. ": " .. cmd)
+                    end
+                    return true
+                end,
+                "Prints the command history"
+            )
+
+            registerCommand(
                 "clear",
                 function()
                     ALL_MESSAGES = {}
+                    return true
                 end,
                 "Clear the console"
             )
@@ -378,6 +446,7 @@ table.insert(mods,
                 "exit",
                 function()
                     console:toggle()
+                    return true
                 end,
                 "Close the console"
             )
@@ -386,6 +455,7 @@ table.insert(mods,
                 "give",
                 function()
                     console.logger:error("Give command not implemented yet")
+                    return false
                 end,
                 "Give an item to the player"
             )
@@ -412,12 +482,24 @@ table.insert(mods,
                             end
                         else
                             console.logger:error("Invalid amount")
+                            return false
                         end
                     else
                         console.logger:warn("Usage: money <add/remove/set> <amount>")
+                        return false
                     end
+                    return true
                 end,
-                "Change the player's money"
+                "Change the player's money",
+                function (current_arg)
+                    local subcommands = {"add", "remove", "set"}
+                    for i, v in ipairs(subcommands) do
+                        if v:find(current_arg, 1, true) == 1 then
+                            return {v}
+                        end
+                    end
+                    return nil
+                end
             )
 
             registerCommand(
@@ -439,15 +521,28 @@ table.insert(mods,
                                 console.logger:info("Set player discards to " .. amount)
                             else
                                 console.logger:error("Invalid operation, use add, remove or set")
+                                return false
                             end
                         else
                             console.logger:error("Invalid amount")
+                            return false
                         end
                     else
                         console.logger:warn("Usage: discards <add/remove/set> <amount>")
+                        return false
                     end
+                    return true
                 end,
-                "Change the player's discards"
+                "Change the player's discards",
+                function (current_arg)
+                    local subcommands = {"add", "remove", "set"}
+                    for i, v in ipairs(subcommands) do
+                        if v:find(current_arg, 1, true) == 1 then
+                            return {v}
+                        end
+                    end
+                    return nil
+                end
             )
 
             registerCommand(
@@ -469,15 +564,28 @@ table.insert(mods,
                                 console.logger:info("Set player hands to " .. amount)
                             else
                                 console.logger:error("Invalid operation, use add, remove or set")
+                                return false
                             end
                         else
                             console.logger:error("Invalid amount")
+                            return false
                         end
                     else
                         console.logger:warn("Usage: hands <add/remove/set> <amount>")
+                        return false
                     end
+                    return true
                 end,
-                "Change the player's remaining hands"
+                "Change the player's remaining hands",
+                function (current_arg)
+                    local subcommands = {"add", "remove", "set"}
+                    for i, v in ipairs(subcommands) do
+                        if v:find(current_arg, 1, true) == 1 then
+                            return {v}
+                        end
+                    end
+                    return nil
+                end
             )
 
         end,
@@ -563,13 +671,6 @@ table.insert(mods,
         on_mouse_released = function(x, y, button)
             if console.is_open then
                 return true -- Do not release buttons through the console, this cancels the event
-            end
-        end,
-        on_command_sent = function(command, args)
-            if _REGISTERED_COMMANDS[command] then
-                _REGISTERED_COMMANDS[command].call(args)
-            else
-                console.logger:error("Command not found: " .. command)
             end
         end,
     }
