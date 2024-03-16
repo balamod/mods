@@ -310,6 +310,12 @@ table.insert(mods,
         mod_id = "dev_console",
         name = "Dev Console",
         version = "0.4.0",
+        author = "sbordeyne & UwUDev",
+        description = {
+            "Press F2 to open/close the console",
+            "Use command `help` for a list of ",
+            "available commands and shortcuts",
+        },
         enabled = true,
         on_enable = function()
             console.logger:debug("Dev Console enabled")
