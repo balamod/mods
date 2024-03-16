@@ -4,7 +4,7 @@ local math = require('math')
 
 local console = {
     logger = getLogger("dev_console"),
-    log_level = "TRACE",
+    log_level = "INFO",
     is_open = false,
     cmd = "> ",
     max_lines = love.graphics.getHeight() / LINE_HEIGHT,
@@ -165,16 +165,6 @@ local console = {
         end
     end,
     typeKey = function (self, key_name)
-        if key_name == "d" and self.modifiers.meta then
-            self.logger:trace("offset= ", self.start_line_offset, "max= ", self.max_lines)
-            return
-        end
-        if key_name == "a" and self.modifiers.meta then
-            for i=1,100 do
-                self.logger:trace("line ", i)
-            end
-            return
-        end
         -- cmd+shift+C on mac, ctrl+shift+C on windows/linux
         if key_name == "c" and ((platform.is_mac and self.modifiers.meta and self.modifiers.shift) or (not platform.is_mac and self.modifiers.ctrl and self.modifiers.shift)) then
             local messages = self:getFilteredMessages()
@@ -200,6 +190,7 @@ local console = {
             return
         end
         if key_name == "escape" then
+            -- close the console
             self:toggle()
             return
         end
@@ -345,7 +336,7 @@ table.insert(mods,
     {
         mod_id = "dev_console",
         name = "Dev Console",
-        version = "0.5.0",
+        version = "0.5.1",
         author = "sbordeyne & UwUDev",
         description = {
             "Press F2 to open/close the console",
