@@ -1,0 +1,17 @@
+[
+  {
+    "url": "https://github.com/HeyImKyu/balatro-gay/tree/main/balamod",
+    "id": "gay",
+    "name": "Gay",
+    "description": [
+      "Changes \"Straight\" to \"Gay\""
+    ],
+    "version": "0.6.9",
+    "load_before": [],
+    "load_after": [],
+    "authors": [
+      "Kyu",
+      "UwUDev"
+    ]
+  }
+]
