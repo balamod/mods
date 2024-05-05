@@ -536,6 +536,31 @@ table.insert(mods,
                 end
             )
 
+			registerCommand(
+				"colours",
+				function(args)
+					local function outputColours(t, prefix)
+						local result = {}
+						for k, v in pairs(t) do
+							local key = prefix and (prefix .. '.' .. k) or k
+							if type(v) == "table" and type(v[1]) == "number" then
+								local formattedValues = {}
+								for i, num in ipairs(v) do
+									table.insert(formattedValues, string.format("%x", num * 255))
+								end
+								table.insert(result, '"' .. key .. '": [ "' .. table.concat(formattedValues) .. '", [ ' .. table.concat(v, ", ") .. ' ] ] ')
+							elseif type(v) == "table" then
+								table.insert(result, printTable(v, key))
+							end
+						end
+						return table.concat(result, ", ")
+					end
+
+					console.logger.info(outputColours(G.C))
+				end,
+				"Outputs all colours as a JSON object which can be used with balamod.github.io/docs/scripts/GenerateColourList.js"
+			)
+
             registerCommand(
                 "hands",
                 function(args)
