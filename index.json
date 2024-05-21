@@ -6,7 +6,7 @@
     "description": [
       "Press R in the shop to reroll it"
     ],
-    "version": "0.6.9",
+    "version": "1.0.6",
     "load_before": [],
     "load_after": [],
     "authors": ["Dogeek <simon.bordeyne@gmail.com>"]
