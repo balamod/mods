@@ -1,20 +1,5 @@
 [
   {
-    "url": "https://github.com/HeyImKyu/balatro-gay",
-    "id": "gay",
-    "name": "Gay",
-    "description": [
-      "Changes \"Straight\" to \"Gay\""
-    ],
-    "version": "0.6.9",
-    "load_before": [],
-    "load_after": [],
-    "authors": [
-      "Kyu",
-      "UwUDev"
-    ]
-  },
-  {
     "url": "https://github.com/sbordeyne/balamod-mods",
     "id": "quick_reroll",
     "name": "Quick Reroll",
