@@ -10,5 +10,31 @@
     "load_before": [],
     "load_after": [],
     "authors": ["Dogeek <simon.bordeyne@gmail.com>"]
+  },
+  {
+    "url": "https://github.com/Zei33/deselect-all-balamod",
+    "id": "deselect-all",
+    "name": "Deselect All",
+    "description": [
+      "Adds a button to deselect all highlighted cards."
+    ],
+    "version": "1.0.0",
+    "load_before": [],
+    "load_after": [],
+    "authors": ["Zei33 <balatro@zei.gg>"]
+  },
+  {
+    "url": "https://github.com/Zei33/balatro-safety-balamod",
+    "id": "balatro-safety",
+    "name": "Balatro Safety",
+    "description": [
+		"Protects you from accidentally making",
+		"dangerous decisions. You'll be presented",
+		"with a confirmation before some choices."
+    ],
+    "version": "1.0.0",
+    "load_before": [],
+    "load_after": [],
+    "authors": ["Zei33 <balatro@zei.gg>"]
   }
 ]
