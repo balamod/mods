@@ -12,7 +12,7 @@
     "authors": ["Dogeek <simon.bordeyne@gmail.com>"]
   },
   {
-    "url": "https://github.com/Zei33/deselect-all-balamod",
+    "url": "deselect-all.tar.gz",
     "id": "deselect-all",
     "name": "Deselect All",
     "description": [
@@ -24,7 +24,7 @@
     "authors": ["Zei33 <balatro@zei.gg>"]
   },
   {
-    "url": "https://github.com/Zei33/balatro-safety-balamod",
+    "url": "balatro-safety.tar.gz",
     "id": "balatro-safety",
     "name": "Balatro Safety",
     "description": [
