@@ -28,9 +28,9 @@
     "id": "balatro-safety",
     "name": "Balatro Safety",
     "description": [
-		"Protects you from accidentally making",
-		"dangerous decisions. You'll be presented",
-		"with a confirmation before some choices."
+        "Protects you from accidentally making",
+        "dangerous decisions. You'll be presented",
+        "with a confirmation before some choices."
     ],
     "version": "1.0.0",
     "load_before": [],
