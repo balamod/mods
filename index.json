@@ -36,5 +36,43 @@
     "load_before": [],
     "load_after": [],
     "authors": ["Zei33 <balatro@zei.gg>"]
+  },
+  {
+    "url": "https://github.com/jacobr1227/double_seals/releases/download/2.2.0/double_seals.tar.gz",
+    "id": "double_seals",
+    "name": "Double Seals",
+    "description": [
+        "Doubles the base game seals' effects.",
+        "Also supports my other Seal mods."
+    ],
+    "version": "2.2.0",
+    "load_before": [],
+    "load_after": [],
+    "authors": ["jacobr1227/Skjell <jacobrogers1227@gmail.com>"]
+  },
+  {
+    "url": "https://github.com/jacobr1227/double_seals/releases/download/2.2.0/orange_seals.tar.gz",
+    "id": "orange_seals",
+    "name": "Orange Seals",
+    "description": [
+        "Enhances random cards when discarded."
+    ],
+    "version": "2.2.0",
+    "load_before": [],
+    "load_after": ["double_seals"],
+    "authors": ["jacobr1227/Skjell <jacobrogers1227@gmail.com>"]
+  },
+  {
+    "url": "https://github.com/jacobr1227/double_seals/releases/download/2.2.0/silver_seals.tar.gz",
+    "id": "silver_seals",
+    "name": "Silver Seals",
+    "description": [
+        "Creates Spectral cards when held",
+        "in hand at the end of a round."
+    ],
+    "version": "2.2.0",
+    "load_before": [],
+    "load_after": ["double_seals"],
+    "authors": ["jacobr1227/Skjell <jacobrogers1227@gmail.com>"]
   }
 ]
