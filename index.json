@@ -74,5 +74,18 @@
     "load_before": [],
     "load_after": ["double_seals"],
     "authors": ["jacobr1227/Skjell <jacobrogers1227@gmail.com>"]
+  },
+  {
+    "url": "https://github.com/Agoraaa/FlushHotkeys",
+    "id": "flush_hotkeys",
+    "name": "Flush Hotkeys",
+    "description": [
+        "Hotkeys for flushes, full houses and more.", 
+        "Try pressing S, D, F and mouse buttons!"
+    ],
+    "version": "1.0.0",
+    "load_before": [],
+    "load_after": [],
+    "authors": ["Agoraaa"]
   }
 ]
