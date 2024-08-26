@@ -88,4 +88,18 @@
     "load_after": [],
     "authors": ["Agoraaa"]
   }
+    {
+  "url": "https://github.com/AntonioAntonio-ai/Balatro-Homestuck-Troll-Pack",
+  "id": "troll-pack",
+  "name": "Troll Pack",
+  "description": [
+    "Adds 16 Homestuck trolls as jokers."
+  ],
+  "version": "0.1.0",
+  "load_before": [],
+  "load_after": [],
+  "authors": [
+    "Joustsmuggler"
+  ]
+}
 ]
